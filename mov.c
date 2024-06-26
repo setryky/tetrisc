@@ -25,35 +25,35 @@ int pontosLinha(int linhas)
     return pontuacao;
 }
 
-void descerLinhas(int matriz[22][12], int linhaParou, int linhasApagadas){
-    for(int l = 1 ; l < (linhaParou + linhasApagadas); l++){
-        for(int c = 1; c < 12; c++){
-            matriz[l+1][c] = matriz[l][c];
-        }
-    }
+void descerLinhas(int matriz[22][12], int linhaParou, int linhasApagadas) {
+    for(int l = linhaParou; l > 0; l--)
+        for(int c = 1; c < 11; c++) matriz[l][c] = matriz[l - linhasApagadas][c];
 }
 
 int apagarLinhasCompletas(int matriz[22][12]) {
     int i, j, g, linhasApagadas = 0, primeiraLinha = 0;
-    for(i = 1; i < 20; i++) {
+    for(i = 20; i > 0; i--) {
         g = 0;
-        for(j = 1; j < 11; j++) if(matriz[i][j] == 1) g++;
+        for(j = 1; j < 11; j++) if (matriz[i][j] == 1) g++;
 
         if(g == 10){
             if(primeiraLinha == 0) primeiraLinha = i;
-            for(j = 1; j < 12; j++) matriz[i][j] = 0;
+            for(j = 1; j < 11; j++) {
+                matriz[i][j] = 0;
+            }
             linhasApagadas++;
         }
     }
-    descerLinhas(matriz, primeiraLinha, linhasApagadas);
+    if(linhasApagadas > 0) descerLinhas(matriz, primeiraLinha, linhasApagadas);
     return linhasApagadas;
 }
 
-int detectorColisao(char entrada, int aleatorio, int l, int c, peca peca, int matriz[22][12]) {
+int detectorColisao(char entrada, int l, int c, peca peca, int matriz[22][12]) {
     for(int k = 0; k < 4; k++){
         int i = l + peca.Linha[k];
         int j = c + peca.Coluna[k];
-        if((i == 20 || entrada == 'd' && j == 10 || entrada == 'a' && j == 1)) return 0;
+        if(i == 20 || (entrada == 'd' && j == 10) || (entrada == 'a' && j == 1)) return 0;
+        else if(()) return 0;
     }
     return 1;
 }
@@ -102,7 +102,7 @@ int main()
 
             entrada = getch();
 
-            if(entrada == 'd' && detectorColisao(entrada, valorAleatorio, l, c, peca[valorAleatorio], matriz)){
+            if(entrada == 'd' && detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)){
                 for(int k = 0; 4 > k; k++){
                     i = l + peca[valorAleatorio].Linha[k];
                     j = c + peca[valorAleatorio].Coluna[k];
@@ -115,7 +115,7 @@ int main()
                     matriz[i][j] = 1;
                 }
             }
-            else if(entrada == 'a'  && detectorColisao(entrada, valorAleatorio, l, c, peca[valorAleatorio], matriz)) {
+            else if(entrada == 'a'  && detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)) {
                 for(int k = 0; 4 > k; k++){
                     i = l + peca[valorAleatorio].Linha[k];
                     j = c + peca[valorAleatorio].Coluna[k];
@@ -129,7 +129,7 @@ int main()
                 }
 
             }
-            else if(entrada == 's' && detectorColisao(entrada, valorAleatorio, l, c, peca[valorAleatorio], matriz)){
+            else if(entrada == 's' && detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)){
                 for(int k = 0; 4 > k; k++){
                     i = l + peca[valorAleatorio].Linha[k];
                     j = c + peca[valorAleatorio].Coluna[k];
@@ -143,7 +143,7 @@ int main()
                 }
                 pontuacao++;
             }
-            else if(detectorColisao(entrada, valorAleatorio, l, c, peca[valorAleatorio], matriz)){
+            else if(detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)){
                 for(int k = 0; 4 > k; k++){
                     i = l + peca[valorAleatorio].Linha[k];
                     j = c + peca[valorAleatorio].Coluna[k];
