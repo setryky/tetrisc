@@ -54,16 +54,10 @@ int detectorColisao(char entrada, int a, int l, int c, peca peca, int matriz[22]
     for(int k = 0; k < 4; k++){
         int i = l + peca.Linha[k];
         int j = c + peca.Coluna[k];
-        if(i == 21 || (entrada == 'd' && j == 10) || (entrada == 'a' && j == 1)) return 0;
-        else if((a == 0 && matriz[i][j] == 2) ||
-            (a == 1 && (matriz[i][j] == 2 || matriz[i][j-1] == 2 || matriz[i][j+1] == 2)) ||
-            (a == 2 && (matriz[i][j] == 2 || matriz[i][j-1] == 2 || matriz[i-1][j+1] == 2)) ||
-            (a == 3 && (matriz[i+1][j] == 2 || matriz[i+1][j+1] == 2)) ||
-            (a == 4 && (matriz[i][j] == 2 || matriz[i][j+1] == 2)) ||
-            (a == 5 && (matriz[i+1][j-1] == 2 || matriz[i+1][j] == 2)) ||
-            (a == 6 && (matriz[i-1][j-1] == 2 || matriz[i][j] == 2 || matriz[i][j+1] == 2))) return 2;
+        if(i == 21 || (entrada == 'd' && j == 10) || (entrada == 'a' && j == 1)) return 0; //detecta colisão com as paredes e retorna 0 se colidiu
+        else if (matriz[i-1][j] == 2) return 2;//detecta colisão com as peças e retorna 2 se colidiu
     }
-    return 1;
+    return 1; //detecta colisão e retorna 1 se não colidiu colidiu
 }
 
 void imprimirTela(int matriz[22][12], int pontuacao){
