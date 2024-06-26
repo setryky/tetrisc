@@ -25,15 +25,25 @@ int pontosLinha(int linhas)
     return pontuacao;
 }
 
+<<<<<<< HEAD
 void descerLinhas(int matriz[22][12], int linhaParou, int linhasApagadas) {
     for(int l = linhaParou; l > 0; l--)
         for(int c = 1; c < 11; c++) matriz[l][c] = matriz[l - linhasApagadas][c];
     for(int l = linhaParou-linhasApagadas; l > 0; l--)
         for(int c = 1; c < 11; c++) matriz[l][c] = 0;
+=======
+void descerLinhas(int matriz[22][12], int linhaParou, int linhasApagadas){
+    for(int l = 1 ; l < (linhaParou + linhasApagadas); l++){
+        for(int c = 1; c < 12; c++){
+            matriz[l+1][c] = matriz[l][c];
+        }
+    }
+>>>>>>> origin/main
 }
 
 int apagarLinhasCompletas(int matriz[22][12]) {
     int i, j, g, linhasApagadas = 0, primeiraLinha = 0;
+<<<<<<< HEAD
     for(i = 20; i > 0; i--) {
         g = 0;
         for(j = 1; j < 11; j++) if(matriz[i][j] == 2) g++;
@@ -54,6 +64,27 @@ int detectorColisao(char entrada, int l, int c, peca peca, int matriz[22][12]){
         int i = l + peca.Linha[k];
         int j = c + peca.Coluna[k];
         if(i == 21 || (entrada == 'd' && j == 10) || (entrada == 'a' && j == 1)) return 0;
+=======
+    for(i = 1; i < 20; i++) {
+        g = 0;
+        for(j = 1; j < 11; j++) if(matriz[i][j] == 1) g++;
+
+        if(g == 10){
+            if(primeiraLinha == 0) primeiraLinha = i;
+            for(j = 1; j < 12; j++) matriz[i][j] = 0;
+            linhasApagadas++;
+        }
+    }
+    descerLinhas(matriz, primeiraLinha, linhasApagadas);
+    return linhasApagadas;
+}
+
+int detectorColisao(char entrada, int aleatorio, int l, int c, peca peca, int matriz[22][12]) {
+    for(int k = 0; k < 4; k++){
+        int i = l + peca.Linha[k];
+        int j = c + peca.Coluna[k];
+        if((i == 20 || entrada == 'd' && j == 10 || entrada == 'a' && j == 1)) return 0;
+>>>>>>> origin/main
     }
     return 1;
 }
@@ -64,7 +95,10 @@ void imprimirTela(int matriz[22][12], int pontuacao){
         for(int co = 0; 12 > co; co++){
             if(co == 0 || co == 11 || li == 0 || li == 21)  mvprintw(li, co, "@");
             else if(matriz[li][co] == 1) mvprintw(li, co, "#");
+<<<<<<< HEAD
             else if(matriz[li][co] == 2) mvprintw(li, co, "$");
+=======
+>>>>>>> origin/main
             else if(matriz[li][co] == 0) mvprintw(li, co, ".");
             }
         mvprintw(22, 0, "Pontuacao: %d", pontuacao);
@@ -72,6 +106,7 @@ void imprimirTela(int matriz[22][12], int pontuacao){
         }
 }
 
+<<<<<<< HEAD
 void removeLinhas(int i, int j, int l, int c, peca peca, int matriz[22][12]){
     for(int k = 0; 4 > k; k++){
         i = l + peca.Linha[k];
@@ -92,6 +127,12 @@ int main()
 {
     int pontuacao = 0;
     double velocidade = 5.0;
+=======
+int main()
+{
+    int pontuacao = 0;
+    int velocidade = 3;
+>>>>>>> origin/main
     int matriz[22][12]={0};
     int i, j, l=0, c=0, ro=0;
     char entrada;
@@ -116,23 +157,56 @@ int main()
     for(int valorAleatorio = Aleatorio(pontuacao); TRUE; valorAleatorio = Aleatorio(pontuacao), i = 0, j = 0, l = 0, c = 0){
         for(; detectorColisao(entrada, l, 11, peca[valorAleatorio], matriz); entrada = getch()){
 
+<<<<<<< HEAD
             if(entrada == 'd' && detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)){
                 removeLinhas(i, j, l, c, peca[valorAleatorio], matriz);
+=======
+    for(int valorAleatorio = Aleatorio(); 1; valorAleatorio = Aleatorio(), i = 0, j = 0, l = 0, c = 0){
+        while(i != 19 && (valorAleatorio == 1 || valorAleatorio == 2 || valorAleatorio == 6) || i != 20 && (valorAleatorio == 0 || valorAleatorio == 3 || valorAleatorio == 4 || valorAleatorio == 5)){
+
+            entrada = getch();
+
+            if(entrada == 'd' && detectorColisao(entrada, valorAleatorio, l, c, peca[valorAleatorio], matriz)){
+                for(int k = 0; 4 > k; k++){
+                    i = l + peca[valorAleatorio].Linha[k];
+                    j = c + peca[valorAleatorio].Coluna[k];
+                    matriz[i][j] = 0;
+                }
+>>>>>>> origin/main
                 c++;
                 adicionaLinhas(i, j, l, c, peca[valorAleatorio], matriz);
             }
+<<<<<<< HEAD
             else if(entrada == 'a'  && detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)) {
                 removeLinhas(i, j, l, c, peca[valorAleatorio], matriz);
+=======
+            else if(entrada == 'a'  && detectorColisao(entrada, valorAleatorio, l, c, peca[valorAleatorio], matriz)) {
+                for(int k = 0; 4 > k; k++){
+                    i = l + peca[valorAleatorio].Linha[k];
+                    j = c + peca[valorAleatorio].Coluna[k];
+                    matriz[i][j] = 0;
+                }
+>>>>>>> origin/main
                 c--;
                 adicionaLinhas(i, j, l, c, peca[valorAleatorio], matriz);
 
             }
+<<<<<<< HEAD
             else if(entrada == 's' && detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)){
                 removeLinhas(i, j, l, c, peca[valorAleatorio], matriz);
+=======
+            else if(entrada == 's' && detectorColisao(entrada, valorAleatorio, l, c, peca[valorAleatorio], matriz)){
+                for(int k = 0; 4 > k; k++){
+                    i = l + peca[valorAleatorio].Linha[k];
+                    j = c + peca[valorAleatorio].Coluna[k];
+                    matriz[i][j] = 0;
+                }
+>>>>>>> origin/main
                 l++;
                 adicionaLinhas(i, j, l, c, peca[valorAleatorio], matriz);
                 pontuacao++;
             }
+<<<<<<< HEAD
             else if(detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)){
                 if(matriz[c + peca[valorAleatorio].Linha[0]][l + peca[valorAleatorio].Coluna[0]] == 2) break;
                 removeLinhas(i, j, l, c, peca[valorAleatorio], matriz);
@@ -147,6 +221,24 @@ int main()
 
             if(pontuacao % 200 == 0) velocidade -= 0.2;
 
+=======
+            else if(detectorColisao(entrada, valorAleatorio, l, c, peca[valorAleatorio], matriz)){
+                for(int k = 0; 4 > k; k++){
+                    i = l + peca[valorAleatorio].Linha[k];
+                    j = c + peca[valorAleatorio].Coluna[k];
+                    matriz[i][j] = 0;
+                }
+                l++;
+                for(int k = 0; 4 > k; k++){
+                    i = l + peca[valorAleatorio].Linha[k];
+                    j = c + peca[valorAleatorio].Coluna[k];
+                    matriz[i][j] = 1;
+                }
+            }
+            int linhasApagadas = apagarLinhasCompletas(matriz);
+            pontuacao += pontosLinha(linhasApagadas);
+            imprimirTela(matriz, pontuacao);
+>>>>>>> origin/main
         }
         for(int i = 1; i < 21; i++)
             for(int o = 1; o < 11; o++)

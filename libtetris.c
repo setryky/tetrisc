@@ -1,17 +1,33 @@
 #include "libtetris.h"
 
+<<<<<<< HEAD
+=======
+//struct que guarda o valor das peças;
+>>>>>>> origin/main
 typedef struct{
     int Linha[4];
     int Coluna[4];
 }peca;
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 
 int Aleatorio(int pontuacao){
     time_t tempoAtual;
     time(&tempoAtual);
+<<<<<<< HEAD
     srand(tempoAtual*pontuacao);
     return rand() % 7;
 }
 
+=======
+    srand(tempoAtual);
+    return rand() % 7;
+}
+
+//função que define quantos pontos vão ser adicionados na pontução de acordo com a quantidade de linhas removidas;
+>>>>>>> origin/main
 int pontosLinha(int linhas)
 {
     int pontuacao = 0;
@@ -21,6 +37,35 @@ int pontosLinha(int linhas)
     else if(linhas==4) pontuacao += 800;
     return pontuacao;
 }
+<<<<<<< HEAD
+=======
+
+//função que apaga as linhas completas;
+int apagarLinhasCompletas(int matriz[22][12]) {
+    int i, j, g;
+    int linhasApagadas = 0;
+    for(i = 0; i < 22; i++) {
+        g = 0;
+        for(j = 1; j < 12; j++) if(matriz[i][j] == 1) g++;
+
+        if(g == 10){
+            for(j = 0; j < 12; j++) matriz[i][j] = 0;
+            linhasApagadas++;
+        }
+    }
+    return linhasApagadas;
+}
+
+//função que detecta a colisão entre a pedra e as paredes e entre as pedras;
+int detectorColisao(char entrada, int aleatorio, int l, int c, peca peca, int matriz[22][12]) {
+    for(int k = 0; k < 4; k++){
+        int i = l + peca.Linha[k];
+        int j = c + peca.Coluna[k];
+        if((i == 20 || entrada == 'd' && j == 10 || entrada == 'a' && j == 1)) return 0;
+    }
+    return 1;
+}
+>>>>>>> origin/main
 
 void descerLinhas(int matriz[22][12], int linhaParou, int linhasApagadas) {
     for(int l = linhaParou; l > 0; l--)
