@@ -28,23 +28,28 @@ int pontosLinha(int linhas)
 void descerLinhas(int matriz[22][12], int linhaParou, int linhasApagadas) {
     for(int l = linhaParou; l > 0; l--)
         for(int c = 1; c < 11; c++) matriz[l][c] = matriz[l - linhasApagadas][c];
+    for(int l = linhaParou-linhasApagadas; l > 0; l--)
+        for(int c = 1; c < 11; c++) matriz[l][c] = 0;
 }
 
-int apagarLinhasCompletas(int matriz[22][12]) {
+int apagarLinhasCompletas(int matriz[22][12], int colisao) {
     int i, j, g, linhasApagadas = 0, primeiraLinha = 0;
-    for(i = 20; i > 0; i--) {
-        g = 0;
-        for(j = 1; j < 11; j++) if (matriz[i][j] == 1) g++;
+    if(colisao == 0){
+        for(i = 20; i > 0; i--) {
+            g = 0;
+            for(j = 1; j < 11; j++) if(matriz[i][j] == 1) g++;
 
-        if(g == 10){
-            if(primeiraLinha == 0) primeiraLinha = i;
-            for(j = 1; j < 11; j++) {
-                matriz[i][j] = 0;
+            if(g == 10){
+                if(primeiraLinha == 0) primeiraLinha = i;
+                for(j = 1; j < 11; j++) {
+                    matriz[i][j] = 0;
+                }
+                linhasApagadas++;
             }
-            linhasApagadas++;
         }
+        if(linhasApagadas > 0) descerLinhas(matriz, primeiraLinha, linhasApagadas);
+        return linhasApagadas;;
     }
-    if(linhasApagadas > 0) descerLinhas(matriz, primeiraLinha, linhasApagadas);
     return linhasApagadas;
 }
 
@@ -53,7 +58,7 @@ int detectorColisao(char entrada, int l, int c, peca peca, int matriz[22][12]) {
         int i = l + peca.Linha[k];
         int j = c + peca.Coluna[k];
         if(i == 20 || (entrada == 'd' && j == 10) || (entrada == 'a' && j == 1)) return 0;
-        else if(()) return 0;
+        //else if(matriz[i+1][j] == 1||(entrada == 'd' && matriz[i][j+2]) == 1 || (entrada == 'a' && matriz[i][j-2] == 1)) return 0;
     }
     return 1;
 }
@@ -74,7 +79,7 @@ void imprimirTela(int matriz[22][12], int pontuacao){
 int main()
 {
     int pontuacao = 0;
-    int velocidade = 3;
+    double velocidade = 5.0;
     int matriz[22][12]={0};
     int i, j, l=0, c=0, ro=0;
     char entrada;
@@ -97,10 +102,8 @@ int main()
     halfdelay(velocidade);
 
 
-    for(int valorAleatorio = Aleatorio(); 1; valorAleatorio = Aleatorio(), i = 0, j = 0, l = 0, c = 0){
-        while(i != 19 && (valorAleatorio == 1 || valorAleatorio == 2 || valorAleatorio == 6) || i != 20 && (valorAleatorio == 0 || valorAleatorio == 3 || valorAleatorio == 4 || valorAleatorio == 5)){
-
-            entrada = getch();
+    for(int valorAleatorio = Aleatorio(); TRUE; valorAleatorio = 0, i = 0, j = 0, l = 0, c = 0){
+        for(; detectorColisao(entrada, l, 11, peca[valorAleatorio], matriz) == 1; entrada = getch()){
 
             if(entrada == 'd' && detectorColisao(entrada, l, c, peca[valorAleatorio], matriz)){
                 for(int k = 0; 4 > k; k++){
@@ -156,12 +159,16 @@ int main()
                     matriz[i][j] = 1;
                 }
             }
-            int linhasApagadas = apagarLinhasCompletas(matriz);
+
+            int linhasApagadas = apagarLinhasCompletas(matriz, detectorColisao(entrada, l, c, peca[valorAleatorio], matriz));
             pontuacao += pontosLinha(linhasApagadas);
+
             imprimirTela(matriz, pontuacao);
+
+            if(pontuacao % 200 == 0) velocidade -= 0.2;
         }
     }
 
-endwin();
+    endwin();
 return 0;
 }
