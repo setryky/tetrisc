@@ -19,10 +19,10 @@ int Aleatorio(int pontuacao){
 int pontosLinha(int linhasApagadas)
 {
     int pontuacao = 0;
-    if(linhasApagadas==1) pontuacao += 100;
-    else if(linhasApagadas==2) pontuacao += 300;
-    else if(linhasApagadas==3) pontuacao += 500;
-    else if(linhasApagadas==4) pontuacao += 800;
+    if(linhasApagadas == 1) pontuacao += 100;
+    else if(linhasApagadas == 2) pontuacao += 300;
+    else if(linhasApagadas == 3) pontuacao += 500;
+    else if(linhasApagadas == 4) pontuacao += 800;
     return pontuacao;
 }
 
