@@ -1,23 +1,17 @@
-#include <stdlib.h>
-#include <ncurses.h>
-#include <time.h>
+#include "libtetris.h"
 
-//struct que guarda o valor das peças;
 typedef struct{
     int Linha[4];
     int Coluna[4];
 }peca;
 
-
-//função que define a peça aleatoriamente. O horário da máquina é usado como seed para a função "rand()";
-int Aleatorio(){
+int Aleatorio(int pontuacao){
     time_t tempoAtual;
     time(&tempoAtual);
-    srand(tempoAtual);
+    srand(tempoAtual*pontuacao);
     return rand() % 7;
 }
 
-//função que define quantos pontos vão ser adicionados na pontução de acordo com a quantidade de linhas removidas;
 int pontosLinha(int linhas)
 {
     int pontuacao = 0;
@@ -28,29 +22,65 @@ int pontosLinha(int linhas)
     return pontuacao;
 }
 
-//função que apaga as linhas completas;
-int apagarLinhasCompletas(int matriz[22][12]) {
-    int i, j, g;
-    int linhasApagadas = 0;
-    for(i = 0; i < 22; i++) {
-        g = 0;
-        for(j = 1; j < 12; j++) if(matriz[i][j] == 1) g++;
+void descerLinhas(int matriz[22][12], int linhaParou, int linhasApagadas) {
+    for(int l = linhaParou; l > 0; l--)
+        for(int c = 1; c < 11; c++) matriz[l][c] = matriz[l - linhasApagadas][c];
+    for(int l = linhaParou-linhasApagadas; l > 0; l--)
+        for(int c = 1; c < 11; c++) matriz[l][c] = 0;
+}
 
-        if(g == 10){
-            for(j = 0; j < 12; j++) matriz[i][j] = 0;
-            linhasApagadas++;
-        }
+int apagarLinhasCompletas(int matriz[22][12]) {
+    int i, j, g, linhasApagadas = 0, primeiraLinha = 0;
+    for(i = 20; i > 0; i--) {
+        g = 0;
+        for(j = 1; j < 11; j++) if(matriz[i][j] == 2) g++;
+            if(g == 10){
+                if(primeiraLinha == 0) primeiraLinha = i;
+                for(j = 1; j < 11; j++) {
+                    matriz[i][j] = 0;
+                }
+                linhasApagadas++;
+            }
     }
+    if(linhasApagadas > 0) descerLinhas(matriz, primeiraLinha, linhasApagadas);
     return linhasApagadas;
 }
 
-//função que detecta a colisão entre a pedra e as paredes e entre as pedras;
-int detectorColisao(char entrada, int aleatorio, int l, int c, peca peca, int matriz[22][12]) {
+int detectorColisao(char entrada, int l, int c, peca peca, int matriz[22][12]){
     for(int k = 0; k < 4; k++){
         int i = l + peca.Linha[k];
         int j = c + peca.Coluna[k];
-        if((i == 20 || entrada == 'd' && j == 10 || entrada == 'a' && j == 1)) return 0;
+        if(i == 21 || (entrada == 'd' && j == 10) || (entrada == 'a' && j == 1)) return 0;
     }
     return 1;
 }
 
+void imprimirTela(int matriz[22][12], int pontuacao){
+    clear();
+    for(int li = 0; 22 > li; li++){
+        for(int co = 0; 12 > co; co++){
+            if(co == 0 || co == 11 || li == 0 || li == 21)  mvprintw(li, co, "@");
+            else if(matriz[li][co] == 1) mvprintw(li, co, "#");
+            else if(matriz[li][co] == 2) mvprintw(li, co, "$");
+            else if(matriz[li][co] == 0) mvprintw(li, co, ".");
+            }
+        mvprintw(22, 0, "Pontuacao: %d", pontuacao);
+        refresh();
+        }
+}
+
+void removeLinhas(int i, int j, int l, int c, peca peca, int matriz[22][12]){
+    for(int k = 0; 4 > k; k++){
+        i = l + peca.Linha[k];
+        j = c + peca.Coluna[k];
+        matriz[i-1][j] = 0;
+    }
+}
+
+void adicionaLinhas(int i, int j, int l, int c, peca peca, int matriz[22][12]){
+    for(int k = 0; 4 > k; k++){
+        i = l + peca.Linha[k];
+        j = c + peca.Coluna[k];
+        matriz[i-1][j] = 1;
+    }
+}
