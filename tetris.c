@@ -50,14 +50,15 @@ int apagarLinhasCompletas(int matriz[22][12]) {
     return linhasApagadas;
 }
 
-int detectorColisao(char entrada, int linha, int coluna, peca peca, int matriz[22][12]){
-    for(int k = 0; k < 4; k++){
+int detectorColisao(char entrada, int linha, int coluna, peca peca, int matriz[22][12]) {
+    for(int k = 0; k < 4; k++) {
         int novaLinha = linha + peca.Linha[k];
         int novaColuna = coluna + peca.Coluna[k];
-        if(novaLinha == 21 || (entrada == 'd' && novaColuna == 10) || (entrada == 'a' && novaColuna == 1)) return 0;
-        if(matriz[novaLinha-1][novaColuna] == 2 || (entrada == 'd' && novaColuna == 10) || (entrada == 'a' && novaColuna == 1)) return 2;
+        if(novaLinha == 21 || (matriz[novaLinha - 1][novaColuna] == 1 && matriz[novaLinha][novaColuna] == 2)) return 0;
+        else if((entrada == 'd' && novaColuna == 10) || (entrada == 'a' && novaColuna == 1)) return 3;
+        else if(entrada == 'd' && (matriz[novaLinha][novaColuna + 1] == 2 || matriz[novaLinha - 1][novaColuna + 1] == 2) && matriz[novaLinha - 1][novaColuna] == 1) return 2;
+        else if(entrada == 'a' && (matriz[novaLinha][novaColuna - 1] == 2 || matriz[novaLinha - 1][novaColuna - 1] == 2) && matriz[novaLinha - 1][novaColuna] == 1) return 2;
     }
-
     return 1;
 }
 
@@ -76,7 +77,6 @@ void imprimirTela(int matriz[22][12], int pontuacao){
 }
 
 int gameOver(int matriz[22][12], int pontuacao){
-    clear();
     for(int linha = 0; 22 > linha; linha++){
         for(int coluna = 0; 12 > coluna; coluna++){
             if(coluna == 0 || coluna == 11 || linha == 0 || linha == 21) {attron(COLOR_PAIR(1)); matriz[linha][coluna] = 0; mvprintw(linha, coluna, " ");attroff(COLOR_PAIR(1));}
@@ -85,13 +85,12 @@ int gameOver(int matriz[22][12], int pontuacao){
             else if(matriz[linha][coluna] == 0) mvprintw(linha, coluna, "  ");
             }
         attron(COLOR_PAIR(4)); mvprintw(22, 0, "Pontuacao: %d", pontuacao); attroff(COLOR_PAIR(4));
-        attron(COLOR_PAIR(4)); mvprintw(22, 0, "Pontuacao: %d", pontuacao); attroff(COLOR_PAIR(4));
+        attron(COLOR_PAIR(4)); mvprintw(23, 0, "GAME OVER"); attroff(COLOR_PAIR(4));
         refresh();
         getch();
         endwin();
-        return 0;
         }
-    return 1;
+    return 0;
 }
 
 void removeLinhas(int novaLinha, int novaColuna, int linha, int coluna, peca peca, int matriz[22][12]){
@@ -112,11 +111,11 @@ void adicionaLinhas(int novaLinha, int novaColuna, int linha, int coluna, peca p
 
 int main()
 {
-    int pontuacao = 0, linha = 0, coluna = 0, novaLinha, novaColuna;
+    int pontuacao = 0, linha = 0, coluna = 0, novaLinha, novaColuna, rotacoes = 0;
     double velocidade = 5.0;
-    int matriz[22][12]={0};
+    int matriz[22][12] = {0};
     char entrada;
-    peca peca[7];
+    peca peca[7], prodada[12], copia[7];
 
     //peça I             //peça T             //peça S             //peça L             //cubo               //L espe.            //S espe.
     peca[0].Linha[0]=2;  peca[1].Linha[0]=2;  peca[2].Linha[0]=2;  peca[3].Linha[0]=2;  peca[4].Linha[0]=2;  peca[5].Linha[0]=2;  peca[6].Linha[0]=2;
@@ -127,6 +126,33 @@ int main()
     peca[0].Coluna[2]=5; peca[1].Coluna[2]=6; peca[2].Coluna[2]=5; peca[3].Coluna[2]=5; peca[4].Coluna[2]=6; peca[5].Coluna[2]=5; peca[6].Coluna[2]=6;
     peca[0].Linha[3]=4;  peca[1].Linha[3]=1;  peca[2].Linha[3]=1;  peca[3].Linha[3]=3;  peca[4].Linha[3]=2;  peca[5].Linha[3]=3;  peca[6].Linha[3]=1;
     peca[0].Coluna[3]=5; peca[1].Coluna[3]=5; peca[2].Coluna[3]=6; peca[3].Coluna[3]=6; peca[4].Coluna[3]=6; peca[5].Coluna[3]=4; peca[6].Coluna[3]=4;
+
+    //peça I rotação         //peça T rotações                                                        //L espe. rotações                                                        //S rotação
+    prodada[0].Linha[0]=2;   prodada[1].Linha[0]=2;  prodada[2].Linha[0]=2;  prodada[3].Linha[0]=2;   prodada[4].Linha[0]=2;   prodada[5].Linha[0]=2;  prodada[6].Linha[0]=2;   prodada[7].Linha[0]=2;
+    prodada[0].Coluna[0]=5;  prodada[1].Coluna[0]=5; prodada[2].Coluna[0]=5; prodada[3].Coluna[0]=5;  prodada[4].Coluna[0]=5;  prodada[5].Coluna[0]=5; prodada[6].Coluna[0]=5;  prodada[7].Coluna[0]=5;
+    prodada[0].Linha[1]=2;   prodada[1].Linha[1]=1;  prodada[2].Linha[1]=3;  prodada[3].Linha[1]=1;   prodada[4].Linha[1]=2;   prodada[5].Linha[1]=1;  prodada[6].Linha[1]=3;   prodada[7].Linha[1]=2;
+    prodada[0].Coluna[1]=6;  prodada[1].Coluna[1]=5; prodada[2].Coluna[1]=5; prodada[3].Coluna[1]=5;  prodada[4].Coluna[1]=6;  prodada[5].Coluna[1]=5; prodada[6].Coluna[1]=6;  prodada[7].Coluna[1]=6;
+    prodada[0].Linha[2]=2;   prodada[1].Linha[2]=3;  prodada[2].Linha[2]=2;  prodada[3].Linha[2]=3;   prodada[4].Linha[2]=2;   prodada[5].Linha[2]=3;  prodada[6].Linha[2]=2;   prodada[7].Linha[2]=1;
+    prodada[0].Coluna[2]=4;  prodada[1].Coluna[2]=5; prodada[2].Coluna[2]=4; prodada[3].Coluna[2]=5;  prodada[4].Coluna[2]=4;  prodada[5].Coluna[2]=5; prodada[6].Coluna[2]=4;  prodada[7].Coluna[2]=5;
+    prodada[0].Linha[3]=2;   prodada[1].Linha[3]=2;  prodada[2].Linha[3]=2;  prodada[3].Linha[3]=2;   prodada[4].Linha[3]=1;   prodada[5].Linha[3]=1;  prodada[6].Linha[3]=2;   prodada[7].Linha[3]=3;
+    prodada[0].Coluna[3]=3;  prodada[1].Coluna[3]=6; prodada[2].Coluna[3]=6; prodada[3].Coluna[3]=4;  prodada[4].Coluna[3]=4;  prodada[5].Coluna[3]=6; prodada[6].Coluna[3]=6;  prodada[7].Coluna[3]=6;
+
+    //S espe. rotação       //L rotações
+    prodada[8].Linha[0]=2;  prodada[9].Linha[0]=2;  prodada[10].Linha[0]=2;  prodada[11].Linha[0]=2;
+    prodada[8].Coluna[0]=5; prodada[9].Coluna[0]=5; prodada[10].Coluna[0]=5; prodada[11].Coluna[0]=5;
+    prodada[8].Linha[1]=1;  prodada[9].Linha[1]=2;  prodada[10].Linha[1]=1;  prodada[11].Linha[1]=2;
+    prodada[8].Coluna[1]=6; prodada[9].Coluna[1]=6; prodada[10].Coluna[1]=5; prodada[11].Coluna[1]=6;
+    prodada[8].Linha[2]=2;  prodada[9].Linha[2]=2;  prodada[10].Linha[2]=3;  prodada[11].Linha[2]=2;
+    prodada[8].Coluna[2]=6; prodada[9].Coluna[2]=4; prodada[10].Coluna[2]=5; prodada[11].Coluna[2]=4;
+    prodada[8].Linha[3]=3;  prodada[9].Linha[3]=3;  prodada[10].Linha[3]=1;  prodada[11].Linha[3]=1;
+    prodada[8].Coluna[3]=5; prodada[9].Coluna[3]=4; prodada[10].Coluna[3]=4; prodada[11].Coluna[3]=6;
+
+    for(int copia1 = 0; copia1 < 7; copia1++)
+        for(int copia2 = 0; copia2 < 4; copia2++){
+        copia[copia1].Coluna[copia2] = peca[copia1].Coluna[copia2];
+        copia[copia1].Linha[copia2] = peca[copia1].Linha[copia2];
+    }
+
 
     initscr();
     start_color();
@@ -140,23 +166,21 @@ int main()
     init_pair(3, COLOR_YELLOW, COLOR_YELLOW);
     init_pair(4, COLOR_BLACK, COLOR_WHITE);
 
-    for(int valorAleatorio = Aleatorio(pontuacao); TRUE; valorAleatorio = Aleatorio(pontuacao), linha = 0, coluna = 0){
-        imprimirTela(matriz, pontuacao);
+    for(int valorAleatorio = Aleatorio(pontuacao); TRUE; valorAleatorio = Aleatorio(pontuacao), linha = 0, coluna = 0, rotacoes = 0){
+        while(1){
+            for (int k = 1; k <= 2; k++)
+                for (int i = 4; i <= 6; i++) if(matriz[k][i] == 2) return gameOver(matriz, pontuacao);
 
-
-        for(; (detectorColisao(entrada, linha, 11, peca[valorAleatorio], matriz) == 1);){
             entrada = getch();
-
             if(entrada == 'd' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1){
                 removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
                 coluna++;
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
             }
-            else if(entrada == 'a'  && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
+            else if(entrada == 'a' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1){
                 removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
                 coluna--;
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
-
             }
             else if(entrada == 's' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1){
                 removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
@@ -169,13 +193,14 @@ int main()
                 linha++;
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
             }
-            int linhasApagadas = apagarLinhasCompletas(matriz);
-            pontuacao += pontosLinha(linhasApagadas);
+            if(detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 0) break;
+
+            pontuacao += pontosLinha(apagarLinhasCompletas(matriz));
 
             imprimirTela(matriz, pontuacao);
 
             if(pontuacao % 200 == 0) velocidade -= 0.5;
-
+            
         }
         for(int linhas = 1; linhas < 21; linhas++)
             for(int colunas = 1; colunas < 11; colunas++)
