@@ -6,6 +6,8 @@
 typedef struct {
     int Linha[4]; // Array para armazenar as linhas da peça.
     int Coluna[4]; // Array para armazenar as colunas da peça.
+	int numrotacao;
+	int rotacaolimite;
 } peca; // Definição da estrutura da peça.
 
 int Aleatorio(int pontuacao) {
@@ -66,7 +68,7 @@ int detectorColisao(char entrada, int linha, int coluna, peca peca, int matriz[2
         int novaLinha = linha + peca.Linha[k];
         int novaColuna = coluna + peca.Coluna[k];
         if (novaLinha == 21 || (matriz[novaLinha - 1][novaColuna] == 1 && matriz[novaLinha][novaColuna] == 2)) 
-            return 0; // Detecta colisão com o fundo ou outras peças embaixo.
+            return 0; // Detecta colisão com o fundo ou outras peças.
         else if ((entrada == 'a' && novaColuna == 1) || (entrada == 'd' && novaColuna == 10)) 
             return 2; // Detecta colisão com as bordas.
         else if (entrada == 'd' && ((matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna + 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) || (matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha + 1][novaColuna] == 1))) 
@@ -156,53 +158,46 @@ void adicionaLinhas(int novaLinha, int novaColuna, int linha, int coluna, peca p
 
 int main() {
     int pontuacao = 0, linha = 0, coluna = 0, novaLinha, novaColuna, rotacoes = 0;
-    double velocidade = 3.0; // Velocidade inicial do jogo.
-    int matriz[22][12] = {0}; // Inicializa a matriz do jogo com zeros.
+    double velocidade = 3.0;
+    int matriz[22][12] = {0};
     char entrada;
-    peca peca[7]; // Array para armazenar as peças.
+    peca peca[7], prodada[12], copia[7];
 
-    // Definindo as coordenadas das peças.
-    // Peça I
-    peca[0].Linha[0] = 2; peca[0].Coluna[0] = 5;
-    peca[0].Linha[1] = 1; peca[0].Coluna[1] = 5;
-    peca[0].Linha[2] = 3; peca[0].Coluna[2] = 5;
-    peca[0].Linha[3] = 4; peca[0].Coluna[3] = 5;
+    //peça I             //peça T             //peça S             //peça L             //cubo               //L espe.            //S espe.
+    peca[0].Linha[0]=2;  peca[1].Linha[0]=2;  peca[2].Linha[0]=2;  peca[3].Linha[0]=2;  peca[4].Linha[0]=2;  peca[5].Linha[0]=2;  peca[6].Linha[0]=2;
+    peca[0].Coluna[0]=5; peca[1].Coluna[0]=5; peca[2].Coluna[0]=5; peca[3].Coluna[0]=5; peca[4].Coluna[0]=5; peca[5].Coluna[0]=5; peca[6].Coluna[0]=5;
+    peca[0].Linha[1]=1;  peca[1].Linha[1]=2;  peca[2].Linha[1]=2;  peca[3].Linha[1]=1;  peca[4].Linha[1]=1;  peca[5].Linha[1]=1;  peca[6].Linha[1]=1;
+    peca[0].Coluna[1]=5; peca[1].Coluna[1]=4; peca[2].Coluna[1]=4; peca[3].Coluna[1]=5; peca[4].Coluna[1]=5; peca[5].Coluna[1]=5; peca[6].Coluna[1]=5;
+    peca[0].Linha[2]=3;  peca[1].Linha[2]=2;  peca[2].Linha[2]=1;  peca[3].Linha[2]=3;  peca[4].Linha[2]=1;  peca[5].Linha[2]=3;  peca[6].Linha[2]=2;
+    peca[0].Coluna[2]=5; peca[1].Coluna[2]=6; peca[2].Coluna[2]=5; peca[3].Coluna[2]=5; peca[4].Coluna[2]=6; peca[5].Coluna[2]=5; peca[6].Coluna[2]=6;
+    peca[0].Linha[3]=4;  peca[1].Linha[3]=1;  peca[2].Linha[3]=1;  peca[3].Linha[3]=3;  peca[4].Linha[3]=2;  peca[5].Linha[3]=3;  peca[6].Linha[3]=1;
+    peca[0].Coluna[3]=5; peca[1].Coluna[3]=5; peca[2].Coluna[3]=6; peca[3].Coluna[3]=6; peca[4].Coluna[3]=6; peca[5].Coluna[3]=4; peca[6].Coluna[3]=4;
 
-    // Peça T
-    peca[1].Linha[0] = 2; peca[1].Coluna[0] = 5;
-    peca[1].Linha[1] = 2; peca[1].Coluna[1] = 4;
-    peca[1].Linha[2] = 2; peca[1].Coluna[2] = 6;
-    peca[1].Linha[3] = 1; peca[1].Coluna[3] = 5;
+    //peça I rotação         //peça T rotações                                                        //L espe. rotações                                                        //S rotação
+    prodada[0].Linha[0]=2;   prodada[1].Linha[0]=2;  prodada[2].Linha[0]=2;  prodada[3].Linha[0]=2;   prodada[4].Linha[0]=2;   prodada[5].Linha[0]=2;  prodada[6].Linha[0]=2;   prodada[7].Linha[0]=2;
+    prodada[0].Coluna[0]=5;  prodada[1].Coluna[0]=5; prodada[2].Coluna[0]=5; prodada[3].Coluna[0]=5;  prodada[4].Coluna[0]=5;  prodada[5].Coluna[0]=5; prodada[6].Coluna[0]=5;  prodada[7].Coluna[0]=5;
+    prodada[0].Linha[1]=2;   prodada[1].Linha[1]=1;  prodada[2].Linha[1]=3;  prodada[3].Linha[1]=1;   prodada[4].Linha[1]=2;   prodada[5].Linha[1]=1;  prodada[6].Linha[1]=3;   prodada[7].Linha[1]=2;
+    prodada[0].Coluna[1]=6;  prodada[1].Coluna[1]=5; prodada[2].Coluna[1]=5; prodada[3].Coluna[1]=5;  prodada[4].Coluna[1]=6;  prodada[5].Coluna[1]=5; prodada[6].Coluna[1]=6;  prodada[7].Coluna[1]=6;
+    prodada[0].Linha[2]=2;   prodada[1].Linha[2]=3;  prodada[2].Linha[2]=2;  prodada[3].Linha[2]=3;   prodada[4].Linha[2]=2;   prodada[5].Linha[2]=3;  prodada[6].Linha[2]=2;   prodada[7].Linha[2]=1;
+    prodada[0].Coluna[2]=4;  prodada[1].Coluna[2]=5; prodada[2].Coluna[2]=4; prodada[3].Coluna[2]=5;  prodada[4].Coluna[2]=4;  prodada[5].Coluna[2]=5; prodada[6].Coluna[2]=4;  prodada[7].Coluna[2]=5;
+    prodada[0].Linha[3]=2;   prodada[1].Linha[3]=2;  prodada[2].Linha[3]=2;  prodada[3].Linha[3]=2;   prodada[4].Linha[3]=1;   prodada[5].Linha[3]=1;  prodada[6].Linha[3]=2;   prodada[7].Linha[3]=3;
+    prodada[0].Coluna[3]=3;  prodada[1].Coluna[3]=6; prodada[2].Coluna[3]=6; prodada[3].Coluna[3]=4;  prodada[4].Coluna[3]=4;  prodada[5].Coluna[3]=6; prodada[6].Coluna[3]=6;  prodada[7].Coluna[3]=6;
 
-    // Peça S
-    peca[2].Linha[0] = 2; peca[2].Coluna[0] = 5;
-    peca[2].Linha[1] = 2; peca[2].Coluna[1] = 4;
-    peca[2].Linha[2] = 1; peca[2].Coluna[2] = 5;
-    peca[2].Linha[3] = 1; peca[2].Coluna[3] = 6;
+    //S espe. rotação       //L rotações  															   //limites de rotação
+    prodada[8].Linha[0]=2;  prodada[9].Linha[0]=2;  prodada[10].Linha[0]=2;  prodada[11].Linha[0]=2;   peca[0].numrotacao=-1;   peca[5].numrotacao=3;
+    prodada[8].Coluna[0]=5; prodada[9].Coluna[0]=5; prodada[10].Coluna[0]=5; prodada[11].Coluna[0]=5;  peca[0].rotacaolimite=2; peca[5].rotacaolimite=4;
+    prodada[8].Linha[1]=1;  prodada[9].Linha[1]=2;  prodada[10].Linha[1]=1;  prodada[11].Linha[1]=2;   peca[1].numrotacao=0;    peca[6].numrotacao=7;
+    prodada[8].Coluna[1]=6; prodada[9].Coluna[1]=6; prodada[10].Coluna[1]=5; prodada[11].Coluna[1]=6;  peca[1].rotacaolimite=4; peca[6].rotacaolimite=2;
+    prodada[8].Linha[2]=2;  prodada[9].Linha[2]=2;  prodada[10].Linha[2]=3;  prodada[11].Linha[2]=2;   peca[2].numrotacao=6;
+    prodada[8].Coluna[2]=6; prodada[9].Coluna[2]=4; prodada[10].Coluna[2]=5; prodada[11].Coluna[2]=4;  peca[2].rotacaolimite=2;
+    prodada[8].Linha[3]=3;  prodada[9].Linha[3]=3;  prodada[10].Linha[3]=1;  prodada[11].Linha[3]=1;   peca[3].numrotacao=8;
+    prodada[8].Coluna[3]=5; prodada[9].Coluna[3]=4; prodada[10].Coluna[3]=4; prodada[11].Coluna[3]=6;  peca[3].rotacaolimite=4;
 
-    // Peça L
-    peca[3].Linha[0] = 2; peca[3].Coluna[0] = 5;
-    peca[3].Linha[1] = 1; peca[3].Coluna[1] = 5;
-    peca[3].Linha[2] = 3; peca[3].Coluna[2] = 5;
-    peca[3].Linha[3] = 3; peca[3].Coluna[3] = 6;
-
-    // Cubo
-    peca[4].Linha[0] = 2; peca[4].Coluna[0] = 5;
-    peca[4].Linha[1] = 1; peca[4].Coluna[1] = 5;
-    peca[4].Linha[2] = 1; peca[4].Coluna[2] = 6;
-    peca[4].Linha[3] = 2; peca[4].Coluna[3] = 6;
-
-    // L espelhado
-    peca[5].Linha[0] = 2; peca[5].Coluna[0] = 5;
-    peca[5].Linha[1] = 1; peca[5].Coluna[1] = 5;
-    peca[5].Linha[2] = 3; peca[5].Coluna[2] = 5;
-    peca[5].Linha[3] = 3; peca[5].Coluna[3] = 4;
-
-    // S espelhado
-    peca[6].Linha[0] = 2; peca[6].Coluna[0] = 5;
-    peca[6].Linha[1] = 1; peca[6].Coluna[1] = 5;
-    peca[6].Linha[2] = 2; peca[6].Coluna[2] = 6;
-    peca[6].Linha[3] = 1; peca[6].Coluna[3] = 4;
+    for(int n=0; 7>n; n++)
+		for(int k=0; 4>k; k++){
+			copia[n].Coluna[k]=peca[n].Coluna[k];
+			copia[n].Linha[k]=peca[n].Linha[k];
+		}
 
     initscr(); // Inicializa a tela do ncurses.
     start_color(); // Inicia o modo de cores.
@@ -227,30 +222,46 @@ int main() {
                         return gameOver(matriz, pontuacao); // Finaliza o jogo se houver peças no topo.
 
             entrada = getch(); // Lê a entrada do teclado.
-            if(entrada == 'd' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
+
+            if (entrada == 'd' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
                 removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Remove a peça da posição atual.
                 coluna++; // Move a peça para a direita.
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Adiciona a peça na nova posição.
             } 
-            else if(entrada == 'a' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
+            else if (entrada == 'a' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
                 removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Remove a peça da posição atual.
                 coluna--; // Move a peça para a esquerda.
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Adiciona a peça na nova posição.
             } 
-            else if(entrada == 's' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
+            else if (entrada == 's' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
                 removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Remove a peça da posição atual.
                 linha++; // Move a peça para baixo.
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Adiciona a peça na nova posição.
                 pontuacao++; // Incrementa a pontuação.
-            } 
-            else if(detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
+            }  
+            else if (entrada == 'r' && valorAleatorio!=4) { // Todas as peças, mesnos o cubo, giram.
+				rotacoes++;  // Contagem de rotações, se chegar peca[valorAleatorio].rotacaolimite, ele volta para o valor original.
+				removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+				for (int k = 0; 4 > k; k++) { // Atualiza a peça até ficar igual a peça rodada.
+					peca[valorAleatorio].Linha[k] = prodada[rotacoes+peca[valorAleatorio].numrotacao].Linha[k];
+					peca[valorAleatorio].Coluna[k] = prodada[rotacoes+peca[valorAleatorio].numrotacao].Coluna[k];
+				}
+				if (rotacoes == peca[valorAleatorio].rotacaolimite) { // Se chegar nesse número é porque voltou para a posição original. Então atualiza o gabarito base para voltar como era antes.
+					for (int k=0; 4>k; k++) {
+						peca[valorAleatorio].Linha[k]=copia[valorAleatorio].Linha[k];
+						peca[valorAleatorio].Coluna[k]=copia[valorAleatorio].Coluna[k];
+				}
+				rotacoes = 0; // Reseta o valor rotacoes para poder rotacionar novamente.
+                }
+				adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+			} 
+            else if (detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
                 removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Remove a peça da posição atual.
                 linha++; // Move a peça para baixo.
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Adiciona a peça na nova posição.
             } 
-            else if(detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 0)
+            else if (detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 0)
                 break; // Sai do loop se houver colisão.
-                
 
             pontuacao += pontosLinha(apagarLinhasCompletas(matriz)); // Atualiza a pontuação com base nas linhas apagadas.
 
@@ -260,6 +271,7 @@ int main() {
             if (pontuacao % 200 == 0)
                 velocidade -= 0.5; // Aumenta a velocidade do jogo a cada 200 pontos.
         }
+
         // Converte peças em movimento para peças fixas.
         for (int linhas = 1; linhas < 21; linhas++)
             for (int colunas = 1; colunas < 11; colunas++)
