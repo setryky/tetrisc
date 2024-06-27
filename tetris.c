@@ -55,8 +55,8 @@ int detectorColisao(char entrada, int linha, int coluna, peca peca, int matriz[2
         int novaLinha = linha + peca.Linha[k];
         int novaColuna = coluna + peca.Coluna[k];
         if(novaLinha == 21 || (matriz[novaLinha - 1][novaColuna] == 1 && matriz[novaLinha][novaColuna] == 2)) return 0;
-        else if((entrada == 'd' && novaColuna == 10) || (entrada == 'a' && novaColuna == 1)) return 2;
-        else if(entrada == 'd' && (matriz[novaLinha][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna + 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1)) return 2;
+        else if((entrada == 'a' && novaColuna == 1) || (entrada == 'd' && novaColuna == 10)) return 2;
+        else if(entrada == 'd' && ((matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna + 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) || (matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha + 1][novaColuna] == 1))) return 2;
         else if(entrada == 'a' && ((matriz[novaLinha - 1][novaColuna - 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) || (matriz[novaLinha - 1][novaColuna - 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1))) return 2;
     }
     return 1;
