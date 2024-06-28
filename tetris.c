@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include <time.h>
-#include <sys/queue.h>
 
 typedef struct{
     int Linha[4];
@@ -58,8 +57,8 @@ int detectorColisao(char entrada, int linha, int coluna, peca peca, int matriz[2
         int novaColuna = coluna + peca.Coluna[k];
         if(novaLinha == 21 || (matriz[novaLinha - 1][novaColuna] == 1 && matriz[novaLinha][novaColuna] == 2)) return 0;
         else if((entrada == 'a' && novaColuna == 1) || (entrada == 'd' && novaColuna == 10)) return 2;
-        else if(entrada == 'd' && ((matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna + 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) || (matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha + 1][novaColuna] == 1))) return 2;
-        else if(entrada == 'a' && ((matriz[novaLinha - 1][novaColuna - 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) || (matriz[novaLinha - 1][novaColuna - 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1))) return 2;
+        else if(entrada == 'd' && matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) return 2;
+        else if(entrada == 'a' && matriz[novaLinha - 1][novaColuna - 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) return 2;
     }
     return 1;
 }
@@ -114,10 +113,10 @@ void adicionaLinhas(int novaLinha, int novaColuna, int linha, int coluna, peca p
 int main()
 {
     int pontuacao = 0, linha = 0, coluna = 0, novaLinha, novaColuna, rotacoes = 0;
-    double velocidade = 3.0;
     int matriz[22][12] = {0};
     char entrada;
     peca peca[7], prodada[12], copia[7];
+    
 
     //peça I             //peça T             //peça S             //peça L             //cubo               //L espe.            //S espe.
     peca[0].Linha[0]=2;  peca[1].Linha[0]=2;  peca[2].Linha[0]=2;  peca[3].Linha[0]=2;  peca[4].Linha[0]=2;  peca[5].Linha[0]=2;  peca[6].Linha[0]=2;
@@ -160,7 +159,7 @@ int main()
     noecho();
     curs_set(FALSE);
     keypad(stdscr, TRUE);
-    halfdelay(velocidade);
+    halfdelay(2);
 
     init_pair(1, COLOR_BLUE, COLOR_BLUE);
     init_pair(2, COLOR_RED, COLOR_RED);
@@ -168,7 +167,7 @@ int main()
     init_pair(4, COLOR_BLACK, COLOR_WHITE);
 
     for(int valorAleatorio = Aleatorio(pontuacao); TRUE; valorAleatorio = Aleatorio(pontuacao), linha = 0, coluna = 0, rotacoes = 0){
-        while(1){
+        while(TRUE){
             for (int k = 1; k <= 2; k++)
                 for (int i = 4; i <= 6; i++) if(matriz[k][i] == 2) return gameOver(matriz, pontuacao);
 
@@ -189,36 +188,43 @@ int main()
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
                 pontuacao++;
             }
-            else if(entrada == 'r' && valorAleatorio!=4){
-				rotacoes++;  //conta a quantidade de rotações
+            else if(entrada == 'w' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1){
+                for(;detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz);){
+                    removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+                    linha++;
+                    adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+                    pontuacao += 2;
+                }
+            }
+            else if(entrada == 'r' && valorAleatorio != 4){
+				rotacoes++;
 				removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
 				
-				for(int k = 0; 4 > k; k++){//atualiza o gabarito normal para ficar igual a do rodado
+				for(int k = 0; 4 > k; k++){
 					peca[valorAleatorio].Linha[k] = prodada[rotacoes+peca[valorAleatorio].numrotacao].Linha[k];
 					peca[valorAleatorio].Coluna[k] = prodada[rotacoes+peca[valorAleatorio].numrotacao].Coluna[k];
 				}
-				if(rotacoes == peca[valorAleatorio].rotacaolimite){ //se chegar nesse numero é pq voltou para a posição normal ent atualiza o gabarito normal de voltar para como era antes 
-					for(int k=0; 4>k; k++){
-						peca[valorAleatorio].Linha[k]=copia[valorAleatorio].Linha[k];
-						peca[valorAleatorio].Coluna[k]=copia[valorAleatorio].Coluna[k];
+				if(rotacoes == peca[valorAleatorio].rotacaolimite){
+					for(int k = 0; 4 > k; k++){
+						peca[valorAleatorio].Linha[k] = copia[valorAleatorio].Linha[k];
+						peca[valorAleatorio].Coluna[k] = copia[valorAleatorio].Coluna[k];
 				}
-				rotacoes = 0;// para poder começar a girar de novo
+				rotacoes = 0;
                 }
 				adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
 			}
-            else if(detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1){
-                removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
-                linha++;
-                adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
-            }
+            else if(entrada != 's' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1){
+                    removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+                    linha++;
+                    adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+                }
             else if(detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 0) break;
-            
+
             pontuacao += pontosLinha(apagarLinhasCompletas(matriz));
 
-            clear();refresh();
+            clear();
+            refresh();
             imprimirTela(matriz, pontuacao);
-
-            if(pontuacao % 200 == 0) velocidade -= 0.5;
 
         }
         for(int linhas = 1; linhas < 21; linhas++)
