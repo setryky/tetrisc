@@ -1,7 +1,6 @@
 #include <stdlib.h> // Biblioteca padrão do C para alocação de memória, controle de processos e outras funções de propósito geral.
 #include <ncurses.h> // Biblioteca para controle de interfaces de texto.
 #include <time.h> // Biblioteca para manipulação de data e hora.
-#include <sys/queue.h> // Biblioteca para manipulação de listas, filas e outras estruturas de dados.
 
 typedef struct {
     int Linha[4]; // Array para armazenar as linhas da peça.
@@ -71,9 +70,9 @@ int detectorColisao(char entrada, int linha, int coluna, peca peca, int matriz[2
             return 0; // Detecta colisão com o fundo ou outras peças.
         else if ((entrada == 'a' && novaColuna == 1) || (entrada == 'd' && novaColuna == 10)) 
             return 2; // Detecta colisão com as bordas.
-        else if (entrada == 'd' && ((matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna + 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) || (matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha + 1][novaColuna] == 1))) 
+        else if (entrada == 'd' && matriz[novaLinha - 1][novaColuna + 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) 
             return 2; // Detecta colisão com outras peças à direita.
-        else if (entrada == 'a' && ((matriz[novaLinha - 1][novaColuna - 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) || (matriz[novaLinha - 1][novaColuna - 1] == 2 && matriz[novaLinha][novaColuna - 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1))) 
+        else if (entrada == 'a' && matriz[novaLinha - 1][novaColuna - 1] == 2 && matriz[novaLinha - 1][novaColuna] == 1) 
             return 2; // Detecta colisão com outras peças à esquerda.
     }
     return 1; // Retorna 1 se não houver colisão.
@@ -158,7 +157,6 @@ void adicionaLinhas(int novaLinha, int novaColuna, int linha, int coluna, peca p
 
 int main() {
     int pontuacao = 0, linha = 0, coluna = 0, novaLinha, novaColuna, rotacoes = 0;
-    double velocidade = 3.0;
     int matriz[22][12] = {0};
     char entrada;
     peca peca[7], prodada[12], copia[7];
@@ -204,7 +202,7 @@ int main() {
     noecho(); // Não exibe os caracteres digitados.
     curs_set(FALSE); // Esconde o cursor.
     keypad(stdscr, TRUE); // Habilita o uso do teclado.
-    halfdelay(velocidade); // Define a velocidade inicial.
+    halfdelay(2); // Define a velocidade inicial.
 
     // Inicializa os pares de cores.
     init_pair(1, COLOR_BLUE, COLOR_BLUE); // Bordas.
@@ -223,23 +221,31 @@ int main() {
 
             entrada = getch(); // Lê a entrada do teclado.
 
-            if (entrada == 'd' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
+            if (entrada == 'd' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) { // Mexe a peça para a direita quando 'd' é pressionado.
                 removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Remove a peça da posição atual.
                 coluna++; // Move a peça para a direita.
                 adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Adiciona a peça na nova posição.
             } 
-            else if (entrada == 'a' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
-                removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Remove a peça da posição atual.
+            else if (entrada == 'a' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) { // Mexe a peça para a esquerda quando 'a' é pressionado.
+                removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
                 coluna--; // Move a peça para a esquerda.
-                adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Adiciona a peça na nova posição.
+                adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
             } 
-            else if (entrada == 's' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
-                removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Remove a peça da posição atual.
+            else if (entrada == 's' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) { // Soft-drop quando 's' é pressionado.
+                removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
                 linha++; // Move a peça para baixo.
-                adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Adiciona a peça na nova posição.
-                pontuacao++; // Incrementa a pontuação.
+                adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+                pontuacao++; // Incrementa a pontuação por cada linha descida.
+            }
+            else if (entrada == 'w' && detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) { // Hard-drop quando 'w' é pressionado.
+                for(; detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz);){ // Loop que repete até detectar colisão com o bloco debaixo.
+                    removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+                    linha++;
+                    adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
+                    pontuacao += 2; //Hard-drop possui 2x de ponto por linha.
+                }
             }  
-            else if (entrada == 'r' && valorAleatorio!=4) { // Todas as peças, mesnos o cubo, giram.
+            else if (entrada == 'r' && valorAleatorio!=4) { // Rotaciona quando 'r' é pressionado. Todas as peças, menos o cubo, giram.
 				rotacoes++;  // Contagem de rotações, se chegar peca[valorAleatorio].rotacaolimite, ele volta para o valor original.
 				removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
 				for (int k = 0; 4 > k; k++) { // Atualiza a peça até ficar igual a peça rodada.
@@ -256,9 +262,9 @@ int main() {
 				adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
 			} 
             else if (detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 1) {
-                removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Remove a peça da posição atual.
+                removeLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
                 linha++; // Move a peça para baixo.
-                adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz); // Adiciona a peça na nova posição.
+                adicionaLinhas(novaLinha, novaColuna, linha, coluna, peca[valorAleatorio], matriz);
             } 
             else if (detectorColisao(entrada, linha, coluna, peca[valorAleatorio], matriz) == 0)
                 break; // Sai do loop se houver colisão.
@@ -268,8 +274,6 @@ int main() {
             clear(); refresh(); // Limpa e atualiza a tela.
             imprimirTela(matriz, pontuacao); // Imprime a tela atualizada.
 
-            if (pontuacao % 200 == 0)
-                velocidade -= 0.5; // Aumenta a velocidade do jogo a cada 200 pontos.
         }
 
         // Converte peças em movimento para peças fixas.
